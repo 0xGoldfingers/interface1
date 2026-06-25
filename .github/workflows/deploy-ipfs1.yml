@@ -16,32 +16,50 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
 
-      - name: Checkout stable tag
-        run: git checkout tags/web/5.19.3
+      - name: Remove missing workspace entry
+        run: |
+          python3 -c "
+          import json
+          with open('package.json', 'r') as f:
+              pkg = json.load(f)
+          pkg['workspaces'] = [w for w in pkg.get('workspaces', []) if w != 'tools/uniswap-nx']
+          with open('package.json', 'w') as f:
+              json.dump(pkg, f, indent=2)
+          print('Removed tools/uniswap-nx from workspaces')
+          print('Remaining workspaces:', pkg['workspaces'])
+          "
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Install dependencies
         run: bun install
 
+      - name: Create missing generated folder
+        run: mkdir -p apps/web/src/utils/__generated__
+
       - name: Build
+        working-directory: apps/web
         env:
           REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
           REACT_APP_WALLETCONNECT_PROJECT_ID: ${{ secrets.WALLETCONNECT_PROJECT_ID }}
           NODE_ENV: production
         run: bun run build
-        working-directory: apps/web
 
-      - name: Upload to Pinata
+      - name: Pin to Pinata
         run: |
+          echo "Uploading apps/web/dist to Pinata..."
           RESPONSE=$(curl -s -X POST \
             "https://api.pinata.cloud/pinning/pinFileToIPFS" \
             -H "Authorization: Bearer ${{ secrets.PINATA_JWT }}" \
-            -F "file=@apps/web/dist" \
-            -F "pinataMetadata={\"name\":\"uniswap-${{ github.sha }}\"}")
-          echo "Pinata response: $RESPONSE"
-          CID=$(echo $RESPONSE | grep -o '"IpfsHash":"[^"]*' | cut -d'"' -f4)
-          echo "Deployed CID: $CID"
-          echo "Live at: https://gateway.pinata.cloud/ipfs/$CID"
+            -F "file=@apps/web/dist;type=application/octet-stream" \
+            -F 'pinataMetadata={"name":"uniswap-interface-${{ github.sha }}"}' \
+            -F 'pinataOptions={"cidVersion":1}')
+          echo "Response: $RESPONSE"
+          CID=$(echo $RESPONSE | python3 -c "import sys,json; print(json.load(sys.stdin)['IpfsHash'])")
+          echo "CID: $CID"
+          echo "Live URL: https://gateway.pinata.cloud/ipfs/$CID"
