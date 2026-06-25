@@ -1,8 +1,12 @@
 name: Deploy to IPFS via Pinata
-
 on:
   push:
     branches: [main]
+
+permissions:
+  contents: read
+  statuses: write
+  pull-requests: write
 
 jobs:
   deploy:
