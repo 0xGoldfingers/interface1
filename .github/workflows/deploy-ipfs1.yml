@@ -77,7 +77,7 @@ jobs:
           elif bunx vite build 2>/dev/null; then
             echo "vite build succeeded"
           else
-            echo "All build attempts failed — check available scripts above"
+            echo "All build attempts failed"
             exit 1
           fi
 
@@ -94,7 +94,15 @@ jobs:
             echo "Could not find build output folder"
             exit 1
           fi
-          echo "Uploading $BUILD_DIR to Pinata..."
+          echo "Found build at: $BUILD_DIR"
+
+          echo "Testing JWT format..."
+          JWT="${{ secrets.PINATA_JWT }}"
+          echo "JWT length: ${#JWT}"
+          echo "First 20 chars: ${JWT:0:20}"
+          echo "Last 10 chars: ${JWT: -10}"
+
+          echo "Uploading to Pinata..."
           RESPONSE=$(curl -s -X POST \
             "https://api.pinata.cloud/pinning/pinFileToIPFS" \
             -H "Authorization: Bearer ${{ secrets.PINATA_JWT }}" \
