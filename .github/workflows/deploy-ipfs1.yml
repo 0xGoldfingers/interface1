@@ -100,63 +100,31 @@ jobs:
           echo "File count: $(find $BUILD_DIR -type f | wc -l)"
           echo "Total size: $(du -sh $BUILD_DIR | cut -f1)"
 
-          python3 << PYEOF
-          import os, json, mimetypes, uuid, urllib.request
+          echo "Zipping build folder into single file..."
+          cd $BUILD_DIR && zip -r /tmp/uniswap-build.zip . && cd -
+          echo "Zip size: $(du -sh /tmp/uniswap-build.zip | cut -f1)"
 
-          build_dir = "$BUILD_DIR"
-          jwt = os.environ["PINATA_JWT"]
-          boundary = uuid.uuid4().hex
-          body_parts = []
+          echo "Uploading zip to Pinata..."
+          RESPONSE=$(curl -s -X POST \
+            "https://api.pinata.cloud/pinning/pinFileToIPFS" \
+            -H "Authorization: Bearer $PINATA_JWT" \
+            -F "file=@/tmp/uniswap-build.zip" \
+            -F 'pinataMetadata={"name":"uniswap-frontend"}' \
+            -F 'pinataOptions={"cidVersion":1}')
 
-          for root, dirs, files in os.walk(build_dir):
-              for fname in sorted(files):
-                  fpath = os.path.join(root, fname)
-                  rel = os.path.relpath(fpath, build_dir)
-                  with open(fpath, "rb") as f:
-                      data = f.read()
-                  mime = mimetypes.guess_type(fpath)[0] or "application/octet-stream"
-                  header = (
-                      f"--{boundary}\r\n"
-                      f'Content-Disposition: form-data; name="file"; filename="{rel}"\r\n'
-                      f"Content-Type: {mime}\r\n\r\n"
-                  ).encode()
-                  body_parts.append(header + data + b"\r\n")
+          echo "Pinata response: $RESPONSE"
+          CID=$(echo $RESPONSE | python3 -c \
+            "import sys,json; d=json.load(sys.stdin); print(d.get('IpfsHash','ERROR'))")
+          SIZE=$(echo $RESPONSE | python3 -c \
+            "import sys,json; d=json.load(sys.stdin); print(d.get('PinSize',0))")
 
-          meta = json.dumps({"name": "uniswap-frontend"})
-          body_parts.append((
-              f"--{boundary}\r\n"
-              f'Content-Disposition: form-data; name="pinataMetadata"\r\n\r\n'
-              f"{meta}\r\n"
-          ).encode())
-          body_parts.append(f"--{boundary}--\r\n".encode())
+          echo "================================================"
+          echo "CID:  $CID"
+          echo "Size: $SIZE bytes"
+          echo "URL:  https://gateway.pinata.cloud/ipfs/$CID"
+          echo "================================================"
 
-          body = b"".join(body_parts)
-          print(f"Uploading {len(body_parts)-2} files ({len(body)} bytes) to Pinata...")
-
-          req = urllib.request.Request(
-              "https://api.pinata.cloud/pinning/pinFileToIPFS",
-              data=body,
-              headers={
-                  "Authorization": f"Bearer {jwt}",
-                  "Content-Type": f"multipart/form-data; boundary={boundary}",
-              },
-              method="POST",
-          )
-
-          try:
-              with urllib.request.urlopen(req) as resp:
-                  result = json.loads(resp.read())
-          except urllib.error.HTTPError as e:
-              result = json.loads(e.read())
-
-          cid = result.get("IpfsHash", "ERROR")
-          size = result.get("PinSize", 0)
-          print("================================================")
-          print(f"CID:  {cid}")
-          print(f"Size: {size} bytes")
-          print(f"URL:  https://gateway.pinata.cloud/ipfs/{cid}")
-          print("================================================")
-          if cid == "ERROR":
-              print("Full response:", result)
-              exit(1)
-          PYEOF
+          if [ "$CID" = "ERROR" ]; then
+            echo "Upload failed"
+            exit 1
+          fi
