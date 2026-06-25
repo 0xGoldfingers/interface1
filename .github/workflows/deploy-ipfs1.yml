@@ -52,21 +52,53 @@ jobs:
       - name: Create generated folder
         run: mkdir -p apps/web/src/utils/__generated__
 
-      - name: Build
+      - name: Find and run build script
         working-directory: apps/web
         env:
           REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
           REACT_APP_WALLETCONNECT_PROJECT_ID: ${{ secrets.WALLETCONNECT_PROJECT_ID }}
           NODE_ENV: production
-        run: bun run build
+        run: |
+          echo "Available scripts:"
+          python3 -c "
+          import json
+          with open('package.json') as f:
+              pkg = json.load(f)
+          scripts = pkg.get('scripts', {})
+          for k,v in scripts.items():
+              print(f'  {k}: {v}')
+          "
+          if bun run build 2>/dev/null; then
+            echo "build succeeded"
+          elif bun run build:production 2>/dev/null; then
+            echo "build:production succeeded"
+          elif bun run compile 2>/dev/null; then
+            echo "compile succeeded"
+          elif bunx vite build 2>/dev/null; then
+            echo "vite build succeeded"
+          else
+            echo "All build attempts failed — check available scripts above"
+            exit 1
+          fi
 
       - name: Upload to Pinata
         run: |
-          echo "Uploading build to Pinata..."
+          BUILD_DIR=""
+          if [ -d "apps/web/dist" ]; then
+            BUILD_DIR="apps/web/dist"
+          elif [ -d "apps/web/build" ]; then
+            BUILD_DIR="apps/web/build"
+          elif [ -d "apps/web/out" ]; then
+            BUILD_DIR="apps/web/out"
+          else
+            echo "Could not find build output folder"
+            exit 1
+          fi
+          echo "Uploading $BUILD_DIR to Pinata..."
           RESPONSE=$(curl -s -X POST \
             "https://api.pinata.cloud/pinning/pinFileToIPFS" \
             -H "Authorization: Bearer ${{ secrets.PINATA_JWT }}" \
-            -F "file=@apps/web/dist;type=application/octet-stream" \
+            -F "file=@$BUILD_DIR;type=application/octet-stream" \
             -F 'pinataMetadata={"name":"uniswap-${{ github.sha }}"}' \
             -F 'pinataOptions={"cidVersion":1}')
           echo "Pinata response: $RESPONSE"
