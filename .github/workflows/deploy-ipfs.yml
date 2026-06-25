@@ -2,7 +2,8 @@ name: Deploy to IPFS via Pinata
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -14,27 +15,35 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Install dependencies
         run: bun install
 
       - name: Build
+        working-directory: apps/web
         env:
           REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
           REACT_APP_WALLETCONNECT_PROJECT_ID: ${{ secrets.WALLETCONNECT_PROJECT_ID }}
           NODE_ENV: production
         run: bun run build
-        working-directory: apps/web
+
+      - name: Install Pinata CLI
+        run: npm install -g pinata-cli
 
       - name: Upload to Pinata
         id: pinata
         run: |
-          CID=$(npx pinata-cli upload ./apps/web/dist \
-            --token ${{ secrets.PINATA_JWT }} \
-            --name "uniswap-interface-${{ github.sha }}")
+          CID=$(pinata upload ./apps/web/dist \
+          --jwt "${{ secrets.PINATA_JWT }}" \
+          --name "uniswap-interface-${{ github.sha }}" \
+          --json | jq -r '.IpfsHash')
+
           echo "cid=$CID" >> $GITHUB_OUTPUT
           echo "Deployed CID: $CID"
 
       - name: Print gateway URL
         run: |
-          echo "Live at: https://gateway.pinata.cloud/ipfs/${{ steps.pinata.outputs.cid }}"
+          echo "Live at:"
+          echo "https://gateway.pinata.cloud/ipfs/${{ steps.pinata.outputs.cid }}"
