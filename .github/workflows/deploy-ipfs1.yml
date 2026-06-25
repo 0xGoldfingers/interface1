@@ -97,7 +97,7 @@ jobs:
           echo "Found build at: $BUILD_DIR"
 
           echo "Testing JWT format..."
-          JWT="${{ secrets.PINATA_JWT }}"
+          JWT="${{ secrets.UNISWAPKEY }}"
           echo "JWT length: ${#JWT}"
           echo "First 20 chars: ${JWT:0:20}"
           echo "Last 10 chars: ${JWT: -10}"
@@ -105,7 +105,7 @@ jobs:
           echo "Uploading to Pinata..."
           RESPONSE=$(curl -s -X POST \
             "https://api.pinata.cloud/pinning/pinFileToIPFS" \
-            -H "Authorization: Bearer ${{ secrets.PINATA_JWT }}" \
+            -H "Authorization: Bearer ${{ secrets.UNISWAPKEY }}" \
             -F "file=@$BUILD_DIR;type=application/octet-stream" \
             -F 'pinataMetadata={"name":"uniswap-${{ github.sha }}"}' \
             -F 'pinataOptions={"cidVersion":1}')
