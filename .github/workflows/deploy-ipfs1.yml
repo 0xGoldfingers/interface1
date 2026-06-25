@@ -27,8 +27,7 @@ jobs:
           pkg['workspaces'] = [w for w in pkg.get('workspaces', []) if w != 'tools/uniswap-nx']
           with open('package.json', 'w') as f:
               json.dump(pkg, f, indent=2)
-          print('Removed tools/uniswap-nx from workspaces')
-          print('Remaining workspaces:', pkg['workspaces'])
+          print('Done. Remaining workspaces:', pkg['workspaces'])
           "
 
       - name: Setup Bun
@@ -52,7 +51,7 @@ jobs:
 
       - name: Pin to Pinata
         run: |
-          echo "Uploading apps/web/dist to Pinata..."
+          echo "Uploading to Pinata..."
           RESPONSE=$(curl -s -X POST \
             "https://api.pinata.cloud/pinning/pinFileToIPFS" \
             -H "Authorization: Bearer ${{ secrets.PINATA_JWT }}" \
