@@ -1,12 +1,11 @@
 name: Deploy to IPFS via Pinata
+
 on:
   push:
     branches: [main]
 
 permissions:
   contents: read
-  statuses: write
-  pull-requests: write
 
 jobs:
   deploy:
@@ -15,6 +14,11 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout stable tag
+        run: git checkout tags/web/5.19.3
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -31,14 +35,13 @@ jobs:
         working-directory: apps/web
 
       - name: Upload to Pinata
-        id: pinata
         run: |
-          CID=$(npx pinata-cli upload ./apps/web/dist \
-            --token ${{ secrets.PINATA_JWT }} \
-            --name "uniswap-interface-${{ github.sha }}")
-          echo "cid=$CID" >> $GITHUB_OUTPUT
+          RESPONSE=$(curl -s -X POST \
+            "https://api.pinata.cloud/pinning/pinFileToIPFS" \
+            -H "Authorization: Bearer ${{ secrets.PINATA_JWT }}" \
+            -F "file=@apps/web/dist" \
+            -F "pinataMetadata={\"name\":\"uniswap-${{ github.sha }}\"}")
+          echo "Pinata response: $RESPONSE"
+          CID=$(echo $RESPONSE | grep -o '"IpfsHash":"[^"]*' | cut -d'"' -f4)
           echo "Deployed CID: $CID"
-
-      - name: Print gateway URL
-        run: |
-          echo "Live at: https://gateway.pinata.cloud/ipfs/${{ steps.pinata.outputs.cid }}"
+          echo "Live at: https://gateway.pinata.cloud/ipfs/$CID"
