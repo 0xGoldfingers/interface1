@@ -345,7 +345,7 @@
         "@tanstack/react-query": "5.90.20",
         "@uniswap/analytics": "1.7.2",
         "@uniswap/analytics-events": "2.43.0",
-        "@uniswap/client-data-api": "0.0.106",
+        "@uniswap/client-data-api": "0.0.113",
         "@uniswap/client-explore": "0.0.18",
         "@uniswap/client-notification-service": "0.0.11",
         "@uniswap/ethers-rs-mobile": "0.0.5",
@@ -480,7 +480,6 @@
         "jest-transformer-svg": "2.0.0",
         "madge": "6.1.0",
         "mockdate": "3.0.5",
-        "postinstall-postinstall": "2.1.0",
         "react-dom": "19.1.0",
         "react-native-asset": "2.1.1",
         "react-native-clean-project": "4.0.1",
@@ -540,7 +539,7 @@
         "@types/react-scroll-sync": "0.9.0",
         "@uniswap/analytics": "1.7.2",
         "@uniswap/analytics-events": "2.43.0",
-        "@uniswap/client-data-api": "0.0.106",
+        "@uniswap/client-data-api": "0.0.113",
         "@uniswap/client-explore": "0.0.18",
         "@uniswap/client-liquidity": "1.3.0",
         "@uniswap/client-notification-service": "0.0.11",
@@ -864,7 +863,7 @@
         "@connectrpc/connect": "1.5.0",
         "@connectrpc/connect-web": "1.5.0",
         "@tanstack/react-query": "5.90.20",
-        "@uniswap/client-data-api": "0.0.106",
+        "@uniswap/client-data-api": "0.0.113",
         "@uniswap/client-embeddedwallet": "0.0.16",
         "@uniswap/client-explore": "0.0.18",
         "@uniswap/client-for": "0.1.5",
@@ -1358,7 +1357,7 @@
         "@typechain/ethers-v5": "7.2.0",
         "@types/poisson-disk-sampling": "2.2.4",
         "@uniswap/analytics-events": "2.43.0",
-        "@uniswap/client-data-api": "0.0.106",
+        "@uniswap/client-data-api": "0.0.113",
         "@uniswap/client-embeddedwallet": "0.0.16",
         "@uniswap/client-explore": "0.0.18",
         "@uniswap/client-liquidity": "1.3.0",
@@ -1535,7 +1534,7 @@
         "@shopify/react-native-skia": "2.2.20",
         "@tanstack/react-query": "5.90.20",
         "@uniswap/analytics-events": "2.43.0",
-        "@uniswap/client-data-api": "0.0.106",
+        "@uniswap/client-data-api": "0.0.113",
         "@uniswap/permit2-sdk": "1.3.0",
         "@uniswap/router-sdk": "2.7.1",
         "@uniswap/sdk-core": "7.17.0",
@@ -5096,7 +5095,7 @@
 
     "@uniswap/client-compliancev2": ["@uniswap/client-compliancev2@1.0.6", "", {}, "sha512-7ksxqn/g5bcfvRGSo8RhKcv3iEBQcHWpg62jSxtO6JeM5YdwFXsudNoo2nAwfF4mE1I8zOSuCUuVttKR4QA9Yw=="],
 
-    "@uniswap/client-data-api": ["@uniswap/client-data-api@0.0.106", "", {}, "sha512-aUgTHmpAyORwpRVDGYsJvotihJzgpxubjeKZcupuEQQcNrOqcLyiZy3TFqVNlrH7MYK5CxoWmI5PWTy8fFENFg=="],
+    "@uniswap/client-data-api": ["@uniswap/client-data-api@0.0.113", "", {}, "sha512-V0XdMK3FntSS6oAQa49yOCD9hQ5saMAZQyzPjDF45YssKX4KHY8gHyNJQ/zhsL4fTpPcgWLtdHxCUvntFwXH/Q=="],
 
     "@uniswap/client-embeddedwallet": ["@uniswap/client-embeddedwallet@0.0.16", "", {}, "sha512-zxlx3E2X0kKAw10FKOGlbFpX4yq3KJv9SEipBJxZae5OZH8Ki8UO+FBX/Ke9JPQmU1WUoiJ7NOknjIIDOjVmpw=="],
 
@@ -8917,8 +8916,6 @@
     "postgres-date": ["postgres-date@1.0.7", "", {}, "sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q=="],
 
     "postgres-interval": ["postgres-interval@1.2.0", "", { "dependencies": { "xtend": "^4.0.0" } }, "sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ=="],
-
-    "postinstall-postinstall": ["postinstall-postinstall@2.1.0", "", {}, "sha512-7hQX6ZlZXIoRiWNrbMQaLzUUfH+sSx39u8EJ9HYuDc1kLo9IXKWjM5RSquZN1ad5GnH8CGFM78fsAAQi3OKEEQ=="],
 
     "pprof-format": ["pprof-format@2.2.1", "", {}, "sha512-p4tVN7iK19ccDqQv8heyobzUmbHyds4N2FI6aBMcXz6y99MglTWDxIyhFkNaLeEXs6IFUEzT0zya0icbSLLY0g=="],
 
